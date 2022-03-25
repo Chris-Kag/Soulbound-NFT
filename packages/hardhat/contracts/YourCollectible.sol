@@ -17,6 +17,9 @@ contract YourCollectible is
 
     Counters.Counter private _tokenIdCounter;
 
+    mapping (uint256 => uint256) _numTransfers;
+    mapping (uint256 => uint256) _transferLimit;
+
     constructor() ERC721("YourCollectible", "YCB") {}
 
     function _baseURI() internal pure override returns (string memory) {
@@ -39,6 +42,11 @@ contract YourCollectible is
         uint256 tokenId
     ) internal override(ERC721, ERC721Enumerable) {
         super._beforeTokenTransfer(from, to, tokenId);
+        require(
+            _numTransfers[tokenId] < _transferLimit[tokenId],
+            "This NFT is already SoulBound."
+        );
+        _numTransfers[tokenId] = _numTransfers[tokenId] + 1;
     }
 
     function _burn(uint256 tokenId)
